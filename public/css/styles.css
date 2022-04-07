@@ -1,0 +1,71 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik+Wet+Paint&display=swap');
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+.ant-menu-horizontal > .ant-menu-item-selected a {
+  /* color: red; */
+  border: none !important;
+}
+
+.square {
+  border-radius: 0px;
+}
+
+.jumbotron {
+  background-image: linear-gradient(to right, #007bff, #000);
+  color: #fff;
+}
+
+.logo {
+  width: 150px;
+  color: red;
+}
+
+.logo a {
+  display: inline-block;
+  font-size: 20px;
+  padding: 19px 20px;
+  text-transform: capitalize;
+}
+
+.page-jumbotron {
+  background: linear-gradient(rgba(0, 0, 250, 0.25), rgba(125, 250, 250, 0.45)),
+    url('../image/computer3.jpg');
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  color: white !important;
+  height: 30vh;
+  background-size: 100%;
+  object-fit: contain;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* JUMBOTRON STYLE HERE */
+.aris-jumbotron {
+  background: linear-gradient(rgba(0, 0, 250, 0.25), rgba(125, 250, 250, 0.45)),
+    url('../image/computer4.jpg');
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  color: white !important;
+  height: 50vh;
+  background-size: 100%;
+  object-fit: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.aris-container {
+  font-size: 100px;
+  font-family: 'Rubik Wet Paint', cursive;
+}
+
+.p-aris-rubik-paint {
+  font-size: 41px;
+  font-family: 'Rubik Wet Paint', cursive;
+}

@@ -1,0 +1,58 @@
+.item,
+.itemRight,
+.itemActive {
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px !important;
+  font-weight: bold;
+  border-radius: 10px;
+}
+
+.logo {
+  padding: 7px;
+  backgroundcolor: red;
+  display: flex;
+  justifycontent: center;
+}
+
+.itemRight {
+  float: right;
+  font-size: 15px;
+}
+
+.loginRight {
+  float: right;
+  border: 1px solid blue;
+  border-bottom: 1px solid blue !important;
+  font-size: 17px;
+}
+
+@media (max-width: 792px) {
+  .item {
+    display: none !important;
+  }
+}
+
+@media (max-width: 568px) {
+  .itemRight {
+    display: none !important;
+  }
+}
+
+.itemActive {
+  border: 1px solid black !important;
+  color: black !important;
+}
+
+.itemA {
+  color: black !important;
+}
+.ant-menu-horizontal > .ant-menu-item-selected a:hover {
+  color: red !important;
+  cursor: pointer;
+}
+.ant-menu-horizontal > .ant-menu-item-selected a {
+  color: red !important;
+}
