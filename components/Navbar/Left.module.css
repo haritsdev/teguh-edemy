@@ -10,6 +10,22 @@
   border-radius: 10px;
 }
 
+.itemRight {
+  position: absolute !important;
+  right: 0;
+}
+
+.CssMenuArisLeft {
+  position: absolute !important;
+  left: 17.9% !important;
+}
+
+@media (max-width: 1070px) {
+  .CssMenuArisLeft {
+    left: 22% !important;
+  }
+}
+
 .logo {
   padding: 7px;
   backgroundcolor: red;
@@ -20,6 +36,7 @@
 .itemRight {
   float: right;
   font-size: 15px;
+  backgroundcolor: red;
 }
 
 .loginRight {

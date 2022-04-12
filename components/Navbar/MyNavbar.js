@@ -35,7 +35,7 @@ const MyNavbar = () => {
         </Button>
       </div>
 
-      <Drawer
+      {/* <Drawer
         title="Basic Drawer"
         placement="right"
         closable={false}
@@ -44,7 +44,7 @@ const MyNavbar = () => {
       >
         <LeftMenu />
         <RightMenu />
-      </Drawer>
+      </Drawer> */}
     </nav>
   );
 };

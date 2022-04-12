@@ -15,8 +15,8 @@ function MyApp({ Component, pageProps }) {
       <ToastContainer position="top-center" />
       {/* <ArisNavbar />
       <Navbar /> */}
-      <MyNavbar />
-
+      {/* <MyNavbar /> */}
+      <TopNav />
       <Component {...pageProps} />
     </Provider>
   );

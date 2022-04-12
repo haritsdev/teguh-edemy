@@ -35,7 +35,7 @@ const ArisNavbar = () => {
     dispatch({ type: 'LOGOUT' });
     window.localStorage.removeItem('user');
     const { data } = await axios.get('/api/logout');
-    toast(data.message);
+    toast.error(data.message);
     router.push('/login');
   };
 
@@ -55,6 +55,7 @@ const ArisNavbar = () => {
       style={{
         paddingBottom: '12px',
         paddingTop: '9px',
+        position: 'relative',
       }}
     >
       <Item key="/" onClick={(e) => setCurrent(e.key)}>
@@ -88,16 +89,20 @@ const ArisNavbar = () => {
           </Link>
         </Item>
       ) : (
-        <Item
-          className={CssMenu.item}
-          key="/user/become-instructor"
-          onClick={(e) => setCurrent(e.key)}
-          icon={<TeamOutlined style={{ fontSize: 26, fontWeight: 'bolder' }} />}
-        >
-          <Link href="/user/become-instructor">
-            <a>Become Instructor</a>
-          </Link>
-        </Item>
+        <div className={[CssMenu.CssMenuArisLeft]}>
+          <Item
+            className={[CssMenu.item]}
+            key="/user/become-instructor"
+            onClick={(e) => setCurrent(e.key)}
+            icon={
+              <TeamOutlined style={{ fontSize: 26, fontWeight: 'bolder' }} />
+            }
+          >
+            <Link href="/user/become-instructor">
+              <a>Become Instructor</a>
+            </Link>
+          </Item>
+        </div>
       )}
 
       {user === null && (
@@ -108,7 +113,8 @@ const ArisNavbar = () => {
             icon={
               <LoginOutlined style={{ fontSize: 23, fontWeight: 'bolder' }} />
             }
-            className={[CssMenu.itemRight]}
+            className={CssMenu.itemRight}
+            style={{ right: 120 }}
           >
             <Link href="/login">
               <a>Login</a>
@@ -121,7 +127,7 @@ const ArisNavbar = () => {
             icon={
               <UserAddOutlined style={{ fontSize: 23, fontWeight: 'bolder' }} />
             }
-            className={[CssMenu.itemRight]}
+            className={CssMenu.itemRight}
           >
             <Link href="/register">
               <a>Register</a>
@@ -131,24 +137,31 @@ const ArisNavbar = () => {
       )}
 
       {user !== null && (
-        <SubMenu
-          icon={
-            <HeartIcon
-              style={{ color: 'hotpink', width: '50px', height: '50px' }}
-            />
-          }
-          title={user && `${user.name} Nurgustiani sdsfsd`}
-          className={[CssMenu.itemRight]}
+        <div
+          style={{
+            position: 'absolute',
+            right: '0',
+          }}
         >
-          <ItemGroup style={{ fontSize: '21px' }}>
-            <Item key="/user">
-              <Link href="/user">
-                <a>Dashboard</a>
-              </Link>
-            </Item>
-            <Item onClick={logout}>Logout</Item>
-          </ItemGroup>
-        </SubMenu>
+          <SubMenu
+            icon={
+              <HeartIcon
+                style={{ color: 'hotpink', width: '50px', height: '50px' }}
+              />
+            }
+            title={user && `${user.name}`}
+            className={[CssMenu.itemRight]}
+          >
+            <ItemGroup style={{ fontSize: '21px' }}>
+              <Item key="/user">
+                <Link href="/user">
+                  <a>Dashboard</a>
+                </Link>
+              </Item>
+              <Item onClick={logout}>Logout</Item>
+            </ItemGroup>
+          </SubMenu>
+        </div>
       )}
     </Menu>
   );

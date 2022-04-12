@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import HeroPage from '../../../components/Hero/HeroPage';
-import InstructorRoute from '../../../components/routes/InstructorRoute';
+import HeroPage from '../../../../components/Hero/HeroPage';
+import InstructorRoute from '../../../../components/routes/InstructorRoute';
 import Resizer from 'react-image-file-resizer';
 import { toast } from 'react-toastify';
-import CourseCreateForm from '../../../components/Forms/CourseCreateForm';
+import CourseCreateForm from '../../../../components/Forms/CourseCreateForm';
 import { useRouter } from 'next/router';
-const CourseCreate = () => {
+
+const CourseEdit = () => {
   const [values, setValues] = useState({
     name: '',
     category: '',
@@ -17,13 +18,24 @@ const CourseCreate = () => {
     loading: false,
   });
 
-  const [fileList, setFileList] = useState([]);
-
   const [image, setImage] = useState({});
   const [preview, setPreview] = useState('');
   const [uploadButtonText, setUploadButtonText] = useState('Upload Image');
-
+  const [fileList, setFileList] = useState([]);
   const [description, setDescription] = useState('');
+
+  //router.get('/')
+  const router = useRouter();
+  const { slug } = router.query;
+
+  useEffect(() => {
+    loadCourse();
+  }, [slug]);
+
+  const loadCourse = async () => {
+    const { data } = await axios.get(`/api/course/${slug}`);
+    setValues(data);
+  };
 
   const handleDescriptionChange = ({ html, text }) => {
     console.log('handleEditorChange', text);
@@ -32,7 +44,7 @@ const CourseCreate = () => {
     setValues({ ...values, description: description });
   };
   //router routes
-  const router = useRouter();
+
   const handleImage = (e) => {
     let file = e.target.files[0];
     setPreview(window.URL.createObjectURL(file));
@@ -116,7 +128,7 @@ const CourseCreate = () => {
 
   return (
     <InstructorRoute>
-      <HeroPage title={'Create Course'} />
+      <HeroPage title={'Update Course'} />
       <div className="pt-3 pb-3">
         <CourseCreateForm
           handleSubmit={handleSubmit}
@@ -131,6 +143,7 @@ const CourseCreate = () => {
           uploadButtonText={uploadButtonText}
           handleImageRemove={handleImageRemove}
           handleDescriptionChange={handleDescriptionChange}
+          editPage={true}
         />
       </div>
       {/* <pre>{JSON.stringify(values, null, 4)}</pre>
@@ -139,4 +152,4 @@ const CourseCreate = () => {
   );
 };
 
-export default CourseCreate;
+export default CourseEdit;

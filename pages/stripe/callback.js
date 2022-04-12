@@ -1,7 +1,7 @@
-import { useContext, useEffect } from "react";
-import { Context } from "../../context";
-import { SyncOutlined } from "@ant-design/icons";
-import axios from "axios";
+import { useContext, useEffect } from 'react';
+import { Context } from '../../context';
+import { SyncOutlined } from '@ant-design/icons';
+import axios from 'axios';
 
 const StripeCallback = () => {
   const {
@@ -11,14 +11,14 @@ const StripeCallback = () => {
 
   useEffect(() => {
     if (user) {
-      axios.post("/api/get-account-status").then((res) => {
-        // console.log(res);
+      axios.post('/api/get-account-status').then((res) => {
+        console.log(res, 'RESPONSE');
         dispatch({
-          type: "LOGIN",
+          type: 'LOGIN',
           payload: res.data,
         });
-        window.localStorage.setItem("user", JSON.stringify(res.data));
-        window.location.href = "/instructor";
+        window.localStorage.setItem('user', JSON.stringify(res.data));
+        window.location.href = '/instructor';
       });
     }
   }, [user]);

@@ -30,12 +30,13 @@ const BecomeInstructor = () => {
     axios
       .post('/api/make-instructor')
       .then((res) => {
-        console.log(res);
+        console.log(res, 'MAKE INSTRUCTOR');
         window.location.href = res.data;
+        setLoading(false);
       })
       .catch((err) => {
         console.log(err.response.status);
-        toast('Stripe onboarding failed. Try again.');
+        toast.error('Stripe onboarding failed. Try again.');
         setLoading(false);
       });
   };
