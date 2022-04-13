@@ -8,6 +8,7 @@ import ReactMarkdown from 'react-markdown';
 import AddLessonForm from '../../../../components/Forms/AddFormLessons';
 import { toast } from 'react-toastify';
 import Item from 'antd/lib/list/Item';
+import Link from 'next/link';
 
 const CourseView = () => {
   const [course, setCourse] = useState({});
@@ -107,123 +108,164 @@ const CourseView = () => {
       toast.error('Remove video failed');
     }
   };
-
+  console.log(slug, 'ARIS SLUF');
   return (
     <InstructorRoute>
-      <div className="card shadow mb-5">
-        <div className="card-body">
-          <div className="container-fluid pt-3">
-            {/* <pre> {JSON.stringify(course, null, 6)} </pre> */}
+      {/* <pre> {JSON.stringify(course, null, 6)} </pre> */}
 
-            {course && (
-              <div className="container-fluid pt-1">
-                <Avatar
-                  size={80}
-                  src={course.image ? course.image.Location : ''}
-                />
-                <div className="media-body pl-2">
+      {course && (
+        <>
+          <div className="card shadow mb-5">
+            <div className="card-body">
+              <div className="container-fluid pt-3">
+                <div className="container-fluid pt-1">
+                  <Avatar
+                    size={80}
+                    src={course.image ? course.image.Location : ''}
+                  />
+                  <div className="media-body pl-2">
+                    <div className="row">
+                      <div className="col">
+                        <h5 className="mt-2 text-primary">
+                          <Link href={`/instructor/course/edit/${slug}`}>
+                            <a>
+                              <div>{course.name}</div>
+                            </a>
+                          </Link>
+                        </h5>
+                        <p>{course.lessons && course.lessons.length} Lessons</p>
+                        <p>{course.category}</p>
+                      </div>
+
+                      <div className="d-flex">
+                        <Tooltip title="Edit">
+                          <Button
+                            shape="circle"
+                            size="large"
+                            className="bg-warning"
+                            style={{
+                              marginRight: '5px',
+                              color: 'white',
+                              borderColor: '1px solid white',
+                            }}
+                            icon={
+                              <EditOutlined
+                                style={{
+                                  fontSize: '1.2em',
+                                  fontWeight: 'bolder',
+                                }}
+                                onClick={() =>
+                                  router.push(`/instructor/course/edit/${slug}`)
+                                }
+                              />
+                            }
+                          ></Button>
+                        </Tooltip>
+                        <Tooltip title="publish">
+                          <Button
+                            shape="circle"
+                            size="large"
+                            className="bg-success"
+                            style={{
+                              marginLeft: '5px',
+                              color: 'white',
+                              borderColor: '1px solid white',
+                            }}
+                            icon={
+                              <CheckOutlined
+                                style={{
+                                  fontSize: '1.2em',
+                                  fontWeight: 'bolder',
+                                }}
+                              ></CheckOutlined>
+                            }
+                          ></Button>
+                        </Tooltip>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="row">
                     <div className="col">
-                      <h5 className="mt-2 text-primary">
-                        <div>{course.name}</div>
-                      </h5>
-                      <p>{course.lessons && course.lessons.length} Lessons</p>
-                      <p>{course.category}</p>
-                    </div>
-
-                    <div className="d-flex">
-                      <Tooltip title="Edit">
-                        <EditOutlined
-                          onClick={() =>
-                            router.push(`/instructor/course/edit/${slug}`)
-                          }
-                          className="h5 pointer text-warning mr-4"
-                        ></EditOutlined>
-                      </Tooltip>
-                      <Tooltip title="publish">
-                        <CheckOutlined className="h5 pointer text-success mr-4"></CheckOutlined>
-                      </Tooltip>
+                      <ReactMarkdown source={course.description} />
                     </div>
                   </div>
-                </div>
 
-                <div className="row">
-                  <div className="col">
-                    <ReactMarkdown source={course.description} />
-                  </div>
-                </div>
-
-                <div className="row  my-3 d-flex justify-content-center">
-                  <div className="col col-xs-12 col-md-9 col-xl-6  mb-3">
-                    <Button
-                      style={{ width: '100%' }}
-                      className="bg-primary  d-flex justify-content-center py-3 align-items-center"
-                      onClick={() => setVisible(true)}
-                      size="large"
-                      icon={
-                        <UploadOutlined
-                          style={{
-                            fontSize: '1.6em',
-                            fontWeight: 'bold',
-                            color: 'white',
-                          }}
-                        />
-                      }
+                  <div className="row  my-3 d-flex justify-content-center">
+                    <div className="col col-xs-12 col-md-9 col-xl-6  mb-3">
+                      <Button
+                        style={{ width: '100%' }}
+                        className="bg-primary  d-flex justify-content-center py-3 align-items-center"
+                        onClick={() => setVisible(true)}
+                        size="large"
+                        icon={
+                          <UploadOutlined
+                            style={{
+                              fontSize: '1.6em',
+                              fontWeight: 'bold',
+                              color: 'white',
+                            }}
+                          />
+                        }
+                      >
+                        <span style={{ fontSize: '1.1em', color: 'white' }}>
+                          Add Lesson
+                        </span>
+                      </Button>
+                    </div>
+                    <Modal
+                      title="+Add Lesson"
+                      centered
+                      visible={visible}
+                      onCancel={() => setVisible(false)}
+                      footer={null}
                     >
-                      <span style={{ fontSize: '1.1em', color: 'white' }}>
-                        Add Lesson
-                      </span>
-                    </Button>
-                  </div>
-                  <Modal
-                    title="+Add Lesson"
-                    centered
-                    visible={visible}
-                    onCancel={() => setVisible(false)}
-                    footer={null}
-                  >
-                    <AddLessonForm
-                      uploading={uploading}
-                      values={values}
-                      setValues={setValues}
-                      handleAddLesson={handleAddLesson}
-                      uploadButtonText={uploadButtonText}
-                      handleVideo={handleVideo}
-                      progress={progress}
-                      handleVideoRemove={handleVideoRemove}
-                    />
-                  </Modal>
-                </div>
-
-                <div className="row pb-5">
-                  <div className="col lesson-list">
-                    <h4>
-                      {course && course.lessons && course.lessons.length}{' '}
-                      Lessons
-                    </h4>
-                    <div>
-                      {/* <pre> {JSON.stringify(course.lessons, null, 4)}</pre> */}
-
-                      <List
-                        itemLayout="horizontal"
-                        dataSource={course && course.lessons}
-                        renderItem={(item, index) => (
-                          <Item>
-                            <Item.Meta
-                              avatar={<Avatar>{index + 1}</Avatar>}
-                              title={item.title}
-                            />
-                          </Item>
-                        )}
+                      <AddLessonForm
+                        uploading={uploading}
+                        values={values}
+                        setValues={setValues}
+                        handleAddLesson={handleAddLesson}
+                        uploadButtonText={uploadButtonText}
+                        handleVideo={handleVideo}
+                        progress={progress}
+                        handleVideoRemove={handleVideoRemove}
                       />
-                    </div>
+                    </Modal>
                   </div>
                 </div>
               </div>
-            )}
+            </div>
           </div>
-        </div>
-      </div>
+
+          <div className="card shadow">
+            <div className="container-fluid pt-3">
+              <div className="row pb-5">
+                <div className="col lesson-list">
+                  <h4>
+                    {course && course.lessons && course.lessons.length} Lessons
+                  </h4>
+                  <div>
+                    {/* <pre> {JSON.stringify(course.lessons, null, 4)}</pre> */}
+
+                    <List
+                      itemLayout="horizontal"
+                      dataSource={course && course.lessons}
+                      renderItem={(item, index) => (
+                        <Item>
+                          <Item.Meta
+                            avatar={<Avatar>{index + 1}</Avatar>}
+                            title={item.title}
+                          />
+                        </Item>
+                      )}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </InstructorRoute>
   );
 };

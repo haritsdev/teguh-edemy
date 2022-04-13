@@ -5,6 +5,13 @@ body {
   font-family: sans-serif;
   background: rgb(245, 246, 254);
 }
+
+.ant-btn:hover,
+.ant-btn:focus {
+  color: #40a9ff;
+  border-color: white !important;
+  background: #fff;
+}
 .ant-menu-horizontal > .ant-menu-item-selected a {
   /* color: red; */
   border: none !important;

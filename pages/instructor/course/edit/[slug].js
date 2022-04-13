@@ -5,7 +5,9 @@ import InstructorRoute from '../../../../components/routes/InstructorRoute';
 import Resizer from 'react-image-file-resizer';
 import { toast } from 'react-toastify';
 import CourseCreateForm from '../../../../components/Forms/CourseCreateForm';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { List, Avatar } from 'antd';
 
 const CourseEdit = () => {
   const [values, setValues] = useState({
@@ -16,6 +18,7 @@ const CourseEdit = () => {
     uploading: false,
     paid: true,
     loading: false,
+    lessons: [],
   });
 
   const [image, setImage] = useState({});
@@ -23,23 +26,30 @@ const CourseEdit = () => {
   const [uploadButtonText, setUploadButtonText] = useState('Upload Image');
   const [fileList, setFileList] = useState([]);
   const [description, setDescription] = useState('');
+  const [params, setParams] = useState('');
 
   //router.get('/')
   const router = useRouter();
   const { slug } = router.query;
 
+  const { Item } = List;
+
   useEffect(() => {
+    if (router && router.query) {
+      console.log(router.query);
+      setParams(router.query.params);
+    }
+
     loadCourse();
-  }, [slug]);
+  }, [router, slug]);
 
   const loadCourse = async () => {
     const { data } = await axios.get(`/api/course/${slug}`);
-    setValues(data);
+    if (data) setValues(data);
+    if (data && data.image) setImage(data.image);
   };
 
   const handleDescriptionChange = ({ html, text }) => {
-    console.log('handleEditorChange', text);
-
     setDescription(text);
     setValues({ ...values, description: description });
   };
@@ -61,7 +71,7 @@ const CourseEdit = () => {
         // set image in the state
         setImage(data);
         setValues({ ...values, loading: false });
-        toast.success('Upload data success');
+        toast.success('Gambar berhasil di upload');
       } catch (err) {
         console.log(err);
         setValues({ ...values, loading: false });
@@ -74,15 +84,18 @@ const CourseEdit = () => {
     try {
       // console.log(values);
       setValues({ ...values, loading: true });
-      const res = await axios.post('/api/course/remove-image', { image });
+      const res = await axios.post(`/api/course/remove-image/${slug}`, {
+        image,
+      });
       setImage({});
       setPreview('');
       setUploadButtonText('Upload Image');
       setValues({ ...values, loading: false });
+      toast.success('Berhasil menghapus thumbnail');
     } catch (err) {
       console.log(err);
       setValues({ ...values, loading: false });
-      toast('Image upload failed. Try later.');
+      toast.warning('Gagal menghapus thumbnail coba lagi');
     }
   };
 
@@ -115,41 +128,128 @@ const CourseEdit = () => {
     e.preventDefault();
 
     try {
-      const { data } = await axios.post('/api/course', {
+      const { data } = await axios.put(`/api/course/${slug}`, {
         ...values,
         image,
       });
-      toast.success('Great! Now you can start adding lessons');
-      router.push('/instructor');
+      toast.success('Berhasil ! Mengupdate data');
+      // router.push('/instructor');
     } catch (err) {
       toast.error(err.response.data);
     }
   };
 
+  const handleDrag = (e, index) => {
+    // console.log('ON DRAG', index);
+    e.dataTransfer.setData('itemIndex', index);
+  };
+
+  const handleDrop = async (e, index) => {
+    // console.log('ON DROP', index);
+    const movingItemIndex = e.dataTransfer.getData('itemIndex');
+    const targetItemIndex = index;
+
+    let allLessons = values.lessons;
+    let movingItem = allLessons[movingItemIndex]; //clicked/dragged item to reorder
+    allLessons.splice(movingItemIndex, 1); //remove 1 item from givens Index
+    allLessons.splice(targetItemIndex, 0, movingItem); //push item after target item index
+
+    setValues({ ...values, lessons: [...allLessons] });
+    //sve new lessons order in db
+    const { data } = await axios.put(`/api/course/${slug}`, {
+      ...values,
+      image,
+    });
+    console.log('LESSONS REARANGED RES=>', data);
+    toast.success('Lessons has been rearanged successfully');
+  };
   return (
     <InstructorRoute>
-      <HeroPage title={'Update Course'} />
-      <div className="pt-3 pb-3">
-        <CourseCreateForm
-          handleSubmit={handleSubmit}
-          handleImage={handleImage}
-          handleChange={handleChange}
-          values={values}
-          setValues={setValues}
-          fileList={fileList}
-          onChange={onChange}
-          onPreview={onPreview}
-          preview={preview}
-          uploadButtonText={uploadButtonText}
-          handleImageRemove={handleImageRemove}
-          handleDescriptionChange={handleDescriptionChange}
-          editPage={true}
-        />
-      </div>
-      {/* <pre>{JSON.stringify(values, null, 4)}</pre>
-      <pre>{JSON.stringify(image, null, 4)}</pre> */}
+      {slug !== undefined ? (
+        <>
+          <HeroPage title={'Update Course'} />
+          <div className="pt-3 pb-3">
+            <CourseCreateForm
+              handleSubmit={handleSubmit}
+              handleImage={handleImage}
+              handleChange={handleChange}
+              values={values}
+              setValues={setValues}
+              fileList={fileList}
+              onChange={onChange}
+              onPreview={onPreview}
+              preview={preview}
+              uploadButtonText={uploadButtonText}
+              handleImageRemove={handleImageRemove}
+              handleDescriptionChange={handleDescriptionChange}
+              editPage={true}
+            />
+          </div>
+          {/* <pre>{JSON.stringify(values, null, 4)}</pre>
+    <pre>{JSON.stringify(image, null, 4)}</pre> */}
+          <div className="card shadow py-5 pb-5">
+            <div className="col lesson-list">
+              <h4>
+                {values && values?.lessons && values?.lessons?.length} Lessons
+              </h4>
+              <div>
+                {/* <pre> {JSON.stringify(course.lessons, null, 4)}</pre> */}
+
+                {(values && values?.lessons != []) || values?.lessons != 0 ? (
+                  <List
+                    onDragOver={(e) => e.preventDefault()}
+                    itemLayout="horizontal"
+                    dataSource={values && values.lessons}
+                    renderItem={(item, index) => (
+                      <Item
+                        draggable
+                        onDragStart={(e) => handleDrag(e, index)}
+                        onDrop={(e) => handleDrop(e, index)}
+                      >
+                        <Item.Meta
+                          avatar={
+                            <Avatar className="bg-success">{index + 1}</Avatar>
+                          }
+                          title={item.title}
+                        />
+                      </Item>
+                    )}
+                  />
+                ) : (
+                  <>KOSONG</>
+                )}
+              </div>
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          Page not found Back to{' '}
+          <Link href="/instructor/">
+            <a>Instructor</a>
+          </Link>
+        </>
+      )}
     </InstructorRoute>
   );
 };
 
 export default CourseEdit;
+// export async function getStaticPaths() {
+//   const { data } = await axios.get(`/api/course/belajar-laravel-basic`);
+
+//   const paths = data.map((course) => ({
+//     params: { id: course._id.toString() },
+//   }));
+
+//   return { paths, fallback: false };
+// }
+
+// export async function getStaticProps() {
+//   const { data } = await axios.get(`/api/course/belajar-laravel-basic`);
+//   return {
+//     props: {
+//       dataCourse: data,
+//     },
+//   };
+// }

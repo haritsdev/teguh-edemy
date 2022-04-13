@@ -1,4 +1,4 @@
-import { Select, Button, Upload, Avatar, Badge } from 'antd';
+import { Select, Button, Upload, Avatar, Badge, Skeleton } from 'antd';
 import { SaveOutlined, UserOutlined } from '@ant-design/icons';
 import FormatRupiah from '../../utils/FormatRupiah';
 import MarkdownIt from 'markdown-it';
@@ -13,10 +13,6 @@ const CourseCreateForm = ({
   handleImage,
   handleSubmit,
   handleChange,
-
-  onChange,
-  onPreview,
-  fileList,
   preview,
   uploadButtonText,
   handleImageRemove = (f) => f,
@@ -37,8 +33,8 @@ const CourseCreateForm = ({
     <>
       <div className="card shadow">
         <div className="card-body">
-          {/* <pre>{JSON.stringify(values, null, 4)}</pre> */}
-          {values && (
+          <pre>{JSON.stringify(values?.image, null, 4)}</pre>
+          {values ? (
             <>
               <form onSubmit={handleSubmit} className="form-group">
                 <div className="row g-3 gy-3 mb-3">
@@ -69,15 +65,30 @@ const CourseCreateForm = ({
                         />
                       </Badge>
                     ) : editPage && values.image ? (
-                      <Avatar
-                        shape="square"
+                      <Badge
                         style={{
-                          width: '100%',
-                          height: '300px',
-                          objectFit: 'contain',
+                          fontSize: 19,
+                          padding: '9px',
+                          width: 30,
+                          height: 30,
+                          borderRadius: '50%',
+                          cursor: 'pointer',
+                          fontWeight: 'bold',
                         }}
-                        src={values.image.Location}
-                      />
+                        count="X"
+                        onClick={handleImageRemove}
+                      >
+                        <Avatar
+                          className="img-fluid"
+                          shape="square"
+                          style={{
+                            width: '100%',
+                            height: '300px',
+                            objectFit: 'cover',
+                          }}
+                          src={values.image.Location}
+                        />
+                      </Badge>
                     ) : (
                       <Avatar
                         shape="square"
@@ -190,7 +201,11 @@ const CourseCreateForm = ({
                             type="primary"
                             size="large"
                           >
-                            {values.loading ? 'Saving...' : 'Save & Continue'}
+                            {values.loading
+                              ? 'Saving...'
+                              : editPage
+                              ? 'Update Course'
+                              : 'Save & Continue'}
                           </Button>
                         </div>
                       </div>
@@ -218,6 +233,8 @@ const CourseCreateForm = ({
                 </div>
               </form>
             </>
+          ) : (
+            <Skeleton active />
           )}
         </div>
       </div>
