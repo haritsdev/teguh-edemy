@@ -2,8 +2,15 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import InstructorRoute from '../../../../components/routes/InstructorRoute';
-import { Avatar, Tooltip, Button, Modal, List } from 'antd';
-import { EditOutlined, CheckOutlined, UploadOutlined } from '@ant-design/icons';
+import { Avatar, Tooltip, Button, Modal, List, Badge } from 'antd';
+import {
+  CheckOutlined,
+  UploadOutlined,
+  EditFilled,
+  QuestionOutlined,
+  CloseOutlined,
+  ExclamationCircleOutlined,
+} from '@ant-design/icons';
 import ReactMarkdown from 'react-markdown';
 import AddLessonForm from '../../../../components/Forms/AddFormLessons';
 import { toast } from 'react-toastify';
@@ -22,6 +29,8 @@ const CourseView = () => {
   const [uploading, setUploading] = useState(false);
   const [uploadButtonText, setUploadButtonText] = useState('Upload Video');
   const [progress, setProgress] = useState(0);
+
+  const { confirm } = Modal;
 
   const router = useRouter();
   const slug = router.query.slug;
@@ -108,7 +117,62 @@ const CourseView = () => {
       toast.error('Remove video failed');
     }
   };
-  console.log(slug, 'ARIS SLUF');
+
+  const handlePublish = async (e, courseId) => {
+    e.preventDefault();
+    try {
+      const { data } = await axios.put(`/api/course/publish/${courseId}`);
+      setCourse(data);
+
+      toast.success(
+        'Selamat anda berhasil mempublikasikan kursus anda di market place udemy, '
+      );
+    } catch (error) {
+      console.log(error);
+      toast.error(`Maaf terjadi galat coba beberapa saat lagi${error}`);
+    }
+  };
+  const handleUnPublish = async (e, courseId) => {
+    e.preventDefault();
+    try {
+      const { data } = await axios.put(`/api/course/unpublish/${courseId}`);
+      setCourse(data);
+
+      toast.success('Selamat anda berhasil mengunpublish kursus anda');
+    } catch (error) {
+      console.log(error);
+      toast.error(`Maaf terjadi galat coba beberapa saat lagi${error}`);
+    }
+  };
+
+  function showConfirm(e, courseId, isPublished) {
+    isPublished === true
+      ? confirm({
+          title: `Sudah yakin tidak ingin mempublikasikan kursus anda?`,
+          icon: <ExclamationCircleOutlined />,
+          content: `Ketika anda tidak ingin mempublikasikan kursus anda mempublikasikan maka user akan bisa melihat course anda ${courseId}`,
+          onOk() {
+            console.log('OK');
+            return handleUnPublish(e, courseId);
+          },
+          onCancel() {
+            console.log('Cancel');
+          },
+        })
+      : confirm({
+          title: `Sudah yakin ingin mempublikasikan kursus anda?`,
+          icon: <ExclamationCircleOutlined />,
+          content: `Ketika anda mempublikasikan maka user akan bisa melihat course anda ${courseId}`,
+          onOk() {
+            console.log('OK');
+            return handlePublish(e, courseId);
+          },
+          onCancel() {
+            console.log('Cancel');
+          },
+        });
+  }
+
   return (
     <InstructorRoute>
       {/* <pre> {JSON.stringify(course, null, 6)} </pre> */}
@@ -119,79 +183,169 @@ const CourseView = () => {
             <div className="card-body">
               <div className="container-fluid pt-3">
                 <div className="container-fluid pt-1">
-                  <Avatar
-                    size={80}
-                    src={course.image ? course.image.Location : ''}
-                  />
-                  <div className="media-body pl-2">
-                    <div className="row">
-                      <div className="col">
-                        <h5 className="mt-2 text-primary">
-                          <Link href={`/instructor/course/edit/${slug}`}>
-                            <a>
-                              <div>{course.name}</div>
-                            </a>
-                          </Link>
-                        </h5>
-                        <p>{course.lessons && course.lessons.length} Lessons</p>
-                        <p>{course.category}</p>
-                      </div>
+                  <div className="media-body row col-md-12 d-flex  p-0 justify-content-around mb-3">
+                    <div className="col-md-6 text-left">
+                      <Avatar
+                        shape="square"
+                        style={{
+                          width: '100%',
+                          height: 'auto',
+                          borderRadius: '1em',
+                        }}
+                        src={course.image ? course.image.Location : ''}
+                      />
+                    </div>
 
-                      <div className="d-flex">
-                        <Tooltip title="Edit">
-                          <Button
-                            shape="circle"
-                            size="large"
-                            className="bg-warning"
-                            style={{
-                              marginRight: '5px',
-                              color: 'white',
-                              borderColor: '1px solid white',
-                            }}
-                            icon={
-                              <EditOutlined
+                    <div className="col-md-6 col-sm-12">
+                      <div className="row p-0 justify-content-around">
+                        <div className="col-md-9">
+                          <h5 className="mt-2 text-primary">
+                            <Link href={`/instructor/course/edit/${slug}`}>
+                              <a>
+                                <div>{course.name}</div>
+                              </a>
+                            </Link>
+                          </h5>
+
+                          <p>
+                            {course.lessons && course.lessons.length} Lessons
+                          </p>
+                          <div className="row justify-content-around col-md-6 col-sm-12">
+                            <div className="col-6 p-0">
+                              <span className="badge badge-info text-left px-2 py-2">
+                                {course.category}
+                              </span>
+                            </div>
+                            <div className="col-6  p-0">
+                              {course.published ? (
+                                <span className="badge badge-success text-right p-2">
+                                  Sudah Publish
+                                </span>
+                              ) : (
+                                <span className="badge badge-warning text-right p-2">
+                                  Belum Publish
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="row justify-content-left col-md-6 col-sm-12 mt-4">
+                            <h5>
+                              <strong>Deskripsi</strong>
+                            </h5>
+                          </div>
+
+                          <div className="row justify-content-left col-md-12 col-sm-12 text-left">
+                            <div>
+                              <ReactMarkdown source={course.description} />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-md-3 ">
+                          <div className="row d-flex justify-content-end">
+                            <Tooltip title="Edit">
+                              <Button
+                                shape="circle"
+                                size="large"
+                                className="bg-warning aris-button"
                                 style={{
-                                  fontSize: '1.2em',
-                                  fontWeight: 'bolder',
+                                  marginRight: '5px',
+                                  color: 'white',
+                                  borderColor: '1px solid white',
                                 }}
-                                onClick={() =>
-                                  router.push(`/instructor/course/edit/${slug}`)
+                                icon={
+                                  <EditFilled
+                                    style={{
+                                      fontSize: '1.2em',
+                                      fontWeight: 'bolder',
+                                    }}
+                                    onClick={() =>
+                                      router.push(
+                                        `/instructor/course/edit/${slug}`
+                                      )
+                                    }
+                                  />
                                 }
-                              />
-                            }
-                          ></Button>
-                        </Tooltip>
-                        <Tooltip title="publish">
-                          <Button
-                            shape="circle"
-                            size="large"
-                            className="bg-success"
-                            style={{
-                              marginLeft: '5px',
-                              color: 'white',
-                              borderColor: '1px solid white',
-                            }}
-                            icon={
-                              <CheckOutlined
-                                style={{
-                                  fontSize: '1.2em',
-                                  fontWeight: 'bolder',
-                                }}
-                              ></CheckOutlined>
-                            }
-                          ></Button>
-                        </Tooltip>
+                              ></Button>
+                            </Tooltip>
+
+                            {course.lessons && course.lessons.length < 5 ? (
+                              <Tooltip title="Min 5 lessons required to published">
+                                <Button
+                                  shape="circle"
+                                  size="large"
+                                  className="bg-danger aris-button"
+                                  style={{
+                                    marginLeft: '5px',
+                                    color: 'white',
+                                    borderColor: '1px solid white',
+                                  }}
+                                  icon={
+                                    <QuestionOutlined
+                                      style={{
+                                        fontSize: '1.1em',
+                                        fontWeight: '900',
+                                      }}
+                                    />
+                                  }
+                                ></Button>
+                              </Tooltip>
+                            ) : course.published ? (
+                              <Tooltip title="Unpublished">
+                                <Button
+                                  onClick={(e) =>
+                                    showConfirm(e, course._id, course.published)
+                                  }
+                                  shape="circle"
+                                  size="large"
+                                  className="bg-danger aris-button"
+                                  style={{
+                                    marginLeft: '5px',
+                                    color: 'white',
+                                    borderColor: '1px solid white',
+                                  }}
+                                  icon={
+                                    <CloseOutlined
+                                      style={{
+                                        fontSize: '1.2em',
+                                        fontWeight: 'bolder',
+                                      }}
+                                    />
+                                  }
+                                ></Button>
+                              </Tooltip>
+                            ) : (
+                              <Tooltip title="Publish">
+                                <Button
+                                  onClick={(e) =>
+                                    showConfirm(e, course._id, course.published)
+                                  }
+                                  shape="circle"
+                                  size="large"
+                                  className="bg-success aris-button"
+                                  style={{
+                                    marginLeft: '5px',
+                                    color: 'white',
+                                    borderColor: '1px solid white',
+                                  }}
+                                  icon={
+                                    <CheckOutlined
+                                      style={{
+                                        fontSize: '1.2em',
+                                        fontWeight: 'bolder',
+                                      }}
+                                    />
+                                  }
+                                ></Button>
+                              </Tooltip>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="row">
-                    <div className="col">
-                      <ReactMarkdown source={course.description} />
-                    </div>
-                  </div>
-
-                  <div className="row  my-3 d-flex justify-content-center">
+                  <div className="row d-flex justify-content-left">
                     <div className="col col-xs-12 col-md-9 col-xl-6  mb-3">
                       <Button
                         style={{ width: '100%' }}

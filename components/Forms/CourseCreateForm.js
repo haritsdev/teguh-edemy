@@ -33,7 +33,6 @@ const CourseCreateForm = ({
     <>
       <div className="card shadow">
         <div className="card-body">
-          <pre>{JSON.stringify(values?.image, null, 4)}</pre>
           {values ? (
             <>
               <form onSubmit={handleSubmit} className="form-group">

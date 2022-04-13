@@ -5,8 +5,8 @@ import ShowProgress from '../molecules/ShowProgress';
 import ReactPlayer from 'react-player';
 
 const UpdateLessonForm = ({
-  current,
-  setCurrent,
+  currentLessons,
+  setCurrentLessons,
   handleUpdateLesson,
   uploading,
   uploadVideoButtonText,
@@ -15,13 +15,15 @@ const UpdateLessonForm = ({
 }) => {
   return (
     <div className="container pt-3">
-      {/* <pre>{JSON.stringify(current, null, 4)}</pre> */}
+      {/* <pre>{JSON.stringify(currentLessons, null, 4)}</pre> */}
       <form onSubmit={handleUpdateLesson}>
         <input
           type="text"
-          value={current.title}
+          value={currentLessons.title}
           className="form-control square"
-          onChange={(e) => setCurrent({ ...current, title: e.target.value })}
+          onChange={(e) =>
+            setCurrentLessons({ ...currentLessons, title: e.target.value })
+          }
           placeholder="enter title here"
           autoFocus
           required
@@ -30,15 +32,17 @@ const UpdateLessonForm = ({
           className="form-control mt-3"
           cols="7"
           rows="7"
-          onChange={(e) => setCurrent({ ...current, content: e.target.value })}
-          value={current.content}
+          onChange={(e) =>
+            setCurrentLessons({ ...currentLessons, content: e.target.value })
+          }
+          value={currentLessons.content}
         ></textarea>
 
         <div>
-          {!uploading && current.video && current.video.Location && (
+          {!uploading && currentLessons.video && currentLessons.video.Location && (
             <div className="pt-2 d-flex justify-content-center">
               <ReactPlayer
-                url={current.video.Location}
+                url={currentLessons.video.Location}
                 width="410px"
                 height="240px"
                 controls
@@ -65,9 +69,11 @@ const UpdateLessonForm = ({
           <Switch
             className="float-right mt-2"
             disabled={uploading}
-            defaultChecked={current.free_preview}
+            defaultChecked={currentLessons.free_preview}
             name="free_preview"
-            onChange={(v) => setCurrent({ ...current, free_preview: v })}
+            onChange={(v) =>
+              setCurrentLessons({ ...currentLessons, free_preview: v })
+            }
           />
         </div>
 

@@ -7,7 +7,9 @@ import { toast } from 'react-toastify';
 import CourseCreateForm from '../../../../components/Forms/CourseCreateForm';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { List, Avatar } from 'antd';
+import { List, Avatar, Button, Tooltip, Modal } from 'antd';
+import { DeleteFilled } from '@ant-design/icons';
+import UpdateLessonForm from '../../../../components/Forms/UpdateLessonForm';
 
 const CourseEdit = () => {
   const [values, setValues] = useState({
@@ -27,6 +29,12 @@ const CourseEdit = () => {
   const [fileList, setFileList] = useState([]);
   const [description, setDescription] = useState('');
   const [params, setParams] = useState('');
+  const [visible, setVisible] = useState(false);
+  const [currentLessons, setCurrentLessons] = useState({});
+  const [progress, setProgress] = useState(0);
+  const [uploading, setUploading] = useState(false);
+  const [uploadVideoButtonText, setUploadVideoButtonText] =
+    useState('Upload Video');
 
   //router.get('/')
   const router = useRouter();
@@ -163,6 +171,75 @@ const CourseEdit = () => {
     console.log('LESSONS REARANGED RES=>', data);
     toast.success('Lessons has been rearanged successfully');
   };
+
+  // * FUNCTION DELETE LESSONS OF INSTRUCCTORS  COURSE
+  const handleDelete = async (index) => {
+    let allLessons = values.lessons;
+    const removed = allLessons.splice(index, 1);
+    setValues({ ...values, lessons: allLessons });
+
+    //send request to server
+    const { data } = await axios.put(
+      `/api/course/lesson/${slug}/${removed[0]._id}`
+    );
+    toast.success('Item has been removed');
+  };
+
+  const handleVideoUpload = async (e) => {
+    e.preventDefault();
+    if (currentLessons.video && currentLessons.video.Location) {
+      const res = await axios.post(
+        `/api/course/remove-video/${values.instructor._id}`,
+        currentLessons.video
+      );
+      console.log('REMOVED ===', res);
+    }
+
+    //upload video
+    const file = e.target.files[0];
+    setUploadVideoButtonText(file.name);
+    setUploading(true);
+
+    //send video as form data;
+    const videoData = new FormData();
+    videoData.append('video', file);
+    videoData.append('courseId', values._id);
+
+    //save progress bar and send vidoe as form data to backend
+    const { data } = await axios.post(
+      `/api/course/video-upload/${values.instructor._id}`,
+      videoData,
+      {
+        onUploadProgress: (e) =>
+          setProgress(Math.round((100 * e.loaded) / e.total)),
+      }
+    );
+
+    console.log('DAATA UPLOAD UPDATE VIDEO', data);
+    setCurrent({ ...currentLessons, video: data });
+    setUploading(false);
+  };
+
+  const handleUpdateLesson = async (e) => {
+    e.preventDefault();
+    const { data } = await axios.put(
+      `/api/course/lesson/update/${slug}/${currentLessons._id}`,
+      currentLessons
+    );
+
+    setUploadVideoButtonText('Upload Video');
+
+    setVisible(false);
+
+    if (data.ok) {
+      let arr = values.lessons;
+      const index = arr.findIndex((el) => el._id === currentLessons._id);
+      arr[index] = currentLessons;
+      setValues({ ...values, lessons: arr });
+
+      toast.success('Lesson Updated');
+    }
+  };
   return (
     <InstructorRoute>
       {slug !== undefined ? (
@@ -185,16 +262,13 @@ const CourseEdit = () => {
               editPage={true}
             />
           </div>
-          {/* <pre>{JSON.stringify(values, null, 4)}</pre>
-    <pre>{JSON.stringify(image, null, 4)}</pre> */}
+
           <div className="card shadow py-5 pb-5">
             <div className="col lesson-list">
               <h4>
                 {values && values?.lessons && values?.lessons?.length} Lessons
               </h4>
               <div>
-                {/* <pre> {JSON.stringify(course.lessons, null, 4)}</pre> */}
-
                 {(values && values?.lessons != []) || values?.lessons != 0 ? (
                   <List
                     onDragOver={(e) => e.preventDefault()}
@@ -207,11 +281,37 @@ const CourseEdit = () => {
                         onDrop={(e) => handleDrop(e, index)}
                       >
                         <Item.Meta
+                          onClick={() => {
+                            setVisible(true);
+                            setCurrentLessons(item);
+                          }}
                           avatar={
                             <Avatar className="bg-success">{index + 1}</Avatar>
                           }
                           title={item.title}
                         />
+
+                        <Tooltip title="Delete Course">
+                          <Button
+                            shape="circle"
+                            size="large"
+                            className="bg-danger"
+                            style={{
+                              marginRight: '5px',
+                              color: 'white',
+                              borderColor: '1px solid white',
+                            }}
+                            icon={
+                              <DeleteFilled
+                                style={{
+                                  fontSize: '1.2em',
+                                  fontWeight: 'bolder',
+                                }}
+                                onClick={() => handleDelete(index, item)}
+                              />
+                            }
+                          ></Button>
+                        </Tooltip>
                       </Item>
                     )}
                   />
@@ -230,26 +330,30 @@ const CourseEdit = () => {
           </Link>
         </>
       )}
+      <Modal
+        className="card shadow"
+        title="Update Lesson"
+        width={700}
+        centered
+        visible={visible}
+        onCancel={() => setVisible(false)}
+        footer={null}
+      >
+        <div className="col">
+          <UpdateLessonForm
+            currentLessons={currentLessons}
+            setCurrentLessons={setCurrentLessons}
+            handleVideoUpload={handleVideoUpload}
+            handleUpdateLesson={handleUpdateLesson}
+            uploadVideoButtonText={uploadVideoButtonText}
+            progress={progress}
+            uploading={uploading}
+          />
+          {/* <pre>{JSON.stringify(currentLessons, null, 4)}</pre> */}
+        </div>
+      </Modal>
     </InstructorRoute>
   );
 };
 
 export default CourseEdit;
-// export async function getStaticPaths() {
-//   const { data } = await axios.get(`/api/course/belajar-laravel-basic`);
-
-//   const paths = data.map((course) => ({
-//     params: { id: course._id.toString() },
-//   }));
-
-//   return { paths, fallback: false };
-// }
-
-// export async function getStaticProps() {
-//   const { data } = await axios.get(`/api/course/belajar-laravel-basic`);
-//   return {
-//     props: {
-//       dataCourse: data,
-//     },
-//   };
-// }
