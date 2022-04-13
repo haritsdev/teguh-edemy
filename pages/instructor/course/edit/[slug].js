@@ -244,6 +244,7 @@ const CourseEdit = () => {
     <InstructorRoute>
       {slug !== undefined ? (
         <>
+          <pre>{JSON.stringify(values, null, 4)}</pre>
           <HeroPage title={'Update Course'} />
           <div className="pt-3 pb-3">
             <CourseCreateForm

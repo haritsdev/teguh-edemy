@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Select, Button, Upload, Avatar, Badge, Skeleton } from 'antd';
 import { SaveOutlined, UserOutlined } from '@ant-design/icons';
 import FormatRupiah from '../../utils/FormatRupiah';
@@ -19,11 +20,29 @@ const CourseCreateForm = ({
   handleDescriptionChange,
   editPage = false,
 }) => {
+  const [currentPrice, setCurrentPrice] = useState(values.price);
+
+  useEffect(() => {
+    changePrice();
+  }, [currentPrice]);
+
+  const changePrice = () => {
+    setCurrentPrice(values.price);
+  };
   const children = [];
   const price = [109000, 129000, 179000, 349000, 798000, 1596000];
-  let defaultValue = FormatRupiah(price[0]);
+  let defaultValue = price.includes(values.price);
+  // if (defaultValue) {
+  //   setCurrentPrice(values.price);
+  // }
   for (let i = 0; i <= price.length - 1; i++) {
-    children.push(<Option key={price[i]}>Rp. {FormatRupiah(price[i])}</Option>);
+    children.push(
+      <Option key={price[i]} value={price[i]}>
+        Rp. {FormatRupiah(price[i])}
+      </Option>
+    );
+
+    console.log(price[i], 'price');
   }
 
   // Initialize a markdown parser
@@ -159,10 +178,12 @@ const CourseCreateForm = ({
                                 <Select
                                   style={{ width: '100%' }}
                                   size="large"
-                                  defaultValue={defaultValue}
-                                  onChange={(v) =>
-                                    setValues({ ...values, price: v })
-                                  }
+                                  defaultValue={values?.price}
+                                  onChange={(v) => {
+                                    console.log('CHANGE PRICE', v);
+                                    setCurrentPrice(v);
+                                    setValues({ ...values, price: v });
+                                  }}
                                   tokenSeparators={[,]}
                                 >
                                   {children}
